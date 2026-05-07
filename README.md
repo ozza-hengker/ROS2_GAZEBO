@@ -494,7 +494,12 @@ Kalau belum bisa:
 * cek permission file
 * cek typo
 
-Karena satu titik koma bisa menghancurkan harga diri engineer selama 3 jam.
+Biasanya eror di setup.py, tambahin di bagian bawah nya tuh jadi gini
+
+```bash
+entry_points={
+        'console_scripts': [
+            'publisher = my_robot_pkg.publisher:main',
 
 ---
 
