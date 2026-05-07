@@ -651,9 +651,511 @@ Setelah pertemuan ini peserta diharapkan:
 
 # Penutup
 
-Kalau hari pertama terasa membingungkan itu normal.
+# SAUVC 2026 World Simulation in Gazebo Harmonic
 
-ROS2 memang bukan teknologi yang ramah untuk pemula.
-Tapi begitu konsep node dan topic mulai nyambung, semua sistem robot nanti terasa jauh lebih masuk akal.
+Simulating the Singapore AUV Challenge 2026 competition environment using Gazebo Sim 8 (Harmonic).
 
-Dan di situlah perjalanan debugging tanpa akhir dimulai.
+Menggunakan model BlueROV2 dengan dukungan:
+
+* BuoyancyPlugin
+* HydrodynamicsPlugin
+* ThrusterPlugin
+
+Karena ternyata manusia memutuskan robot bawah air harus menghadapi fisika fluida, arus, buoyancy, dan debugging sekaligus. Sangat efisien untuk menghancurkan kewarasan mahasiswa teknik.
+
+---
+
+# 1. Overview
+
+Repository ini digunakan untuk:
+
+* simulasi arena SAUVC 2026
+* testing autonomous underwater vehicle
+* simulasi mission sebelum deploy robot asli
+* pengujian vision dan movement
+
+Menggunakan:
+
+* Gazebo Harmonic
+* ArduSub
+* MAVROS
+* ardupilot_gazebo
+* ROS2
+
+---
+
+# 2. BlueROV2 Simulation
+
+Model yang digunakan:
+
+```text
+bluerov2_gz
+```
+
+Support:
+
+* BlueROV2 standard
+* BlueROV2 Heavy
+* BlueROV2 Ping
+
+Dengan plugin:
+
+| Plugin              | Fungsi                  |
+| ------------------- | ----------------------- |
+| BuoyancyPlugin      | Simulasi gaya apung     |
+| HydrodynamicsPlugin | Simulasi hambatan air   |
+| ThrusterPlugin      | Simulasi thruster robot |
+
+---
+
+# 3. Arena Specifications
+
+## Pool
+
+* 25m × 16m × 1.6m deep
+
+## Water Simulation
+
+* buoyancy
+* underwater fog effect
+* lighting effect
+
+## Competition World
+
+* Qualification Pool
+* Final Pool
+
+---
+
+# 4. Models
+
+## Arena Objects
+
+* Starting Zone
+* Qualification Gate
+* Final Gate
+* Blue Drum
+* Red Drum
+* Pinger Drum
+* Orange Flare
+* Yellow Flare
+* Red Flare
+* Blue Flare
+
+## Robot Models
+
+* bluerov2
+* bluerov2_heavy
+* bluerov2_ping
+
+---
+
+# 5. Requirements
+
+Pastikan requirement berikut sudah terinstall:
+
+## Required Software
+
+* Gazebo Sim 8 (Harmonic)
+* ardupilot_gazebo for Harmonic
+* ArduSub
+* MAVProxy
+* ROS2 Jazzy / Humble
+
+Dan pastikan:
+
+* ArduSub sudah berhasil di-build
+* workspace ROS2 sudah dibuat
+* Gazebo Harmonic sudah berjalan normal
+
+---
+
+# 6. Clone Repository
+
+Masuk ke workspace:
+
+```bash
+cd ~/ros2_ws/src
+```
+
+Clone repository:
+
+```bash
+git clone <repository-url>
+```
+
+Build workspace:
+
+```bash
+cd ~/ros2_ws
+colcon build
+```
+
+Source workspace:
+
+```bash
+source install/setup.bash
+```
+
+---
+
+# 7. Setup Environment Variable
+
+Tambahkan ke `~/.bashrc` atau `~/.zshrc`:
+
+```bash
+export GZ_SIM_RESOURCE_PATH=~/<your-colcon-workspace>/src/bluerov2_gz/models:~/ros2_ws/src/bluerov2_gz/worlds
+export GZ_SIM_SYSTEM_PLUGIN_PATH=~/ardupilot_gazebo/build
+```
+
+Reload bashrc:
+
+```bash
+source ~/.bashrc
+```
+
+Environment variable ini digunakan agar:
+
+* Gazebo menemukan model simulation
+* plugin ardupilot dapat digunakan
+
+Kalau lupa export path biasanya Gazebo langsung bertindak seperti model robot tidak pernah ada di alam semesta.
+
+---
+
+# 8. Running Gazebo
+
+Menjalankan world simulation:
+
+```bash
+gz sim -v 3 -r <gazebo-world-file>
+```
+
+---
+
+## Qualification Arena
+
+```bash
+gz sim -v 3 -r sauvc_qualification.world
+```
+
+---
+
+## Final Arena
+
+```bash
+gz sim -v 3 -r sauvc_final.world
+```
+
+---
+
+# 9. Running ArduSub
+
+Masuk ke folder ardupilot:
+
+```bash
+cd ~/ardupilot
+```
+
+Jalankan simulasi:
+
+```bash
+Tools/autotest/sim_vehicle.py -L RATBeach -v ArduSub -f vectored --model=JSON --out=udp:0.0.0.0:14550 --console
+```
+
+Command ini akan:
+
+* menjalankan ArduSub
+* membuka MAVProxy
+* menghubungkan robot ke Gazebo
+
+---
+
+# 10. MAVProxy Basic Commands
+
+## Arm Robot
+
+```bash
+arm throttle
+```
+
+---
+
+## Alt Hold Mode
+
+```bash
+mode alt_hold
+```
+
+---
+
+## Thruster Control
+
+```bash
+rc 5 1550
+```
+
+---
+
+## Disarm Robot
+
+```bash
+disarm
+```
+
+---
+
+# 11. Camera Topic
+
+Untuk melihat stream camera:
+
+```bash
+gz topic -e -t /front_camera
+```
+
+Command ini akan menampilkan image stream camera.
+
+Kalau ingin melihat camera langsung di Gazebo:
+
+1. buka top bar Gazebo
+2. cari:
+
+```text
+Image Display
+```
+
+---
+
+# 12. ROS2 Camera Bridge
+
+Untuk aplikasi ROS2 diperlukan bridge antara:
+
+* Gazebo
+* ROS2
+
+Namun pada beberapa versi ROS2 Humble terdapat issue pada `ros_gz_bridge` di Harmonic.
+
+Solusi:
+
+Masuk workspace:
+
+```bash
+cd ~/<your-colcon-workspace>
+```
+
+Hapus source build lama:
+
+```bash
+rm -rf src/ros_gz
+rm -rf build/ros_gz*
+rm -rf install/ros_gz*
+```
+
+Install package bridge:
+
+```bash
+sudo apt-get update
+sudo apt-get install ros-humble-ros-gzharmonic
+```
+
+Source ROS2:
+
+```bash
+source /opt/ros/humble/setup.bash
+```
+
+---
+
+# 13. Running ROS Camera Bridge
+
+Jalankan bridge:
+
+```bash
+ros2 run ros_gz_bridge parameter_bridge '/front_camera@sensor_msgs/msg/Image@ignition.msgs.Image'
+```
+
+Kalau berhasil:
+
+* topic camera Gazebo akan muncul di ROS2
+
+---
+
+# 14. View Camera in ROS2
+
+## Menggunakan rqt_image_view
+
+```bash
+ros2 run rqt_image_view rqt_image_view /front_camera
+```
+
+---
+
+## Menggunakan RViz2
+
+```bash
+rviz2
+```
+
+---
+
+# 15. Change Camera Resolution
+
+Edit file:
+
+```text
+bluerov2/model.sdf
+```
+
+Ubah resolution value pada:
+
+```text
+line 455-456
+```
+
+---
+
+# 16. MAVROS Integration
+
+MAVROS digunakan sebagai bridge komunikasi antara:
+
+* ROS2
+* ArduPilot / Pixhawk
+
+Launch MAVROS:
+
+```bash
+ros2 launch mavros apm.launch fcu_url:=udp://:14550@localhost:14555
+```
+
+---
+
+# 17. Troubleshooting
+
+## Robot Teleporting
+
+Kalau robot bergerak aneh atau teleport:
+
+```bash
+./scripts/clean_gazebo_cache.sh
+```
+
+Restart Gazebo setelah membersihkan cache.
+
+Karena simulator underwater kadang memutuskan hukum fisika hanyalah rekomendasi.
+
+---
+
+# 18. Amarine Command GUI
+
+GUI untuk menjalankan command ROS2, Gazebo, Vision, dan ArduPilot dengan lebih mudah.
+
+Cocok digunakan saat:
+
+* testing simulation
+* launch world
+* debugging cepat
+* mengurangi typo command terminal
+
+Karena manusia entah kenapa masih bisa typo command yang sudah dicopy-paste.
+
+---
+
+# 19. Quick Start
+
+## Install Dependencies
+
+```bash
+cd ~/ros2_ws/src/sauvc26-code
+bash setup_gui.sh
+```
+
+---
+
+## Run GUI
+
+```bash
+cd ~/ros2_ws/src/sauvc26-code
+python3 command_gui.py
+```
+
+---
+
+## Setup Alias (Optional)
+
+Tambahkan ke `~/.bashrc`:
+
+```bash
+alias gui='cd ~/ros2_ws/src/sauvc26-code && python3 command_gui.py'
+```
+
+Reload bashrc:
+
+```bash
+source ~/.bashrc
+```
+
+Sekarang GUI bisa dijalankan hanya dengan:
+
+```bash
+gui
+```
+
+---
+
+# 20. Adding New Commands
+
+Edit file:
+
+```bash
+command_gui.py
+```
+
+Tambahkan command pada dictionary:
+
+```python
+COMMANDS = {
+    "Gazebo": {
+        "Qualification World": "gz sim -v 3 -r sauvc_qualification.world",
+        "Final World": "gz sim -v 3 -r sauvc_final.world",
+        "Your New Command": "your command here",
+    },
+}
+```
+
+Restart GUI setelah mengubah command.
+
+---
+
+# 21. Credits
+
+## BlueROV2 Gazebo
+
+```text
+https://github.com/clydemcqueen/bluerov2_gz
+```
+
+## ArduPilot Gazebo
+
+```text
+https://github.com/ArduPilot/ardupilot_gazebo
+```
+
+---
+
+# Penutup
+
+Dengan simulasi ini peserta dapat:
+
+* menguji logic autonomous
+* testing vision underwater
+* menjalankan mission simulation
+* memahami komunikasi robot modern
+* mencoba environment kompetisi sebelum deploy hardware asli
+
+Dan tentu saja belajar bahwa debugging robotics underwater adalah kombinasi:
+
+* software error
+* physics error
+* network error
+* dan kesalahan manusia yang sangat kreatif.
+
