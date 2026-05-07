@@ -523,10 +523,16 @@ Cek data topic:
 ros2 topic echo /clock
 ```
 
+
 Kalau muncul data waktu berarti:
 
 * Gazebo berhasil komunikasi dengan ROS2
 
+Kalau ga muncul mungkin coba paste ini buat komunikasi mereka
+
+```bash
+ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock
+```
 ---
 
 # 19. Visualisasi Graph ROS2
