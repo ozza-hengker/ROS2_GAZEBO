@@ -501,7 +501,7 @@ entry_points={
         'console_scripts': [
             'publisher = my_robot_pkg.publisher:main',
 
----
+```
 
 # 18. Integrasi ROS2 dengan Gazebo
 
