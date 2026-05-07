@@ -29,6 +29,7 @@ Disarankan:
 
 * menggunakan SSD
 * menggunakan Ubuntu native (dual boot)
+* bukan VirtualBox kentang yang tiap buka terminal kipas laptop langsung teriak.
 
 ---
 
@@ -230,17 +231,57 @@ Mirip seperti:
 
 Gazebo Harmonic adalah simulator resmi untuk ROS2 Jazzy.
 
-Install:
+Pada Ubuntu 24.04 biasanya package `gz-harmonic` tidak langsung ditemukan karena repository Gazebo belum ditambahkan.
+
+Jalankan dependency awal:
+
+```bash
+sudo apt update
+sudo apt install curl lsb-release gnupg -y
+```
+
+Tambahkan key Gazebo:
+
+```bash
+sudo curl -fsSL https://packages.osrfoundation.org/gazebo.gpg \
+-o /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg
+```
+
+Tambahkan repository Gazebo:
+
+```bash
+echo "deb [signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] \
+http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | \
+sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null
+```
+
+Update package:
+
+```bash
+sudo apt update
+```
+
+Install Gazebo Harmonic:
 
 ```bash
 sudo apt install gz-harmonic -y
 ```
 
-Install bridge ROS-Gazebo:
+Install bridge ROS2 dan Gazebo:
 
 ```bash
 sudo apt install ros-jazzy-ros-gz -y
 ```
+
+Kalau muncul error:
+
+```text
+E: Unable to locate package gz-harmonic
+```
+
+berarti repository Gazebo belum berhasil ditambahkan.
+
+Karena dependency robotics memang punya hobi membuat mahasiswa mempertanyakan pilihan hidupnya.
 
 ---
 
