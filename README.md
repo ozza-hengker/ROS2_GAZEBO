@@ -1,96 +1,113 @@
-# ROS2 & Gazebo Simulation (Ubuntu 24.04)
+# Ubuntu 22.04 + ROS 2 Humble + Gazebo Installation Guide
 
-## Learning Week - Programming Motion
+Panduan instalasi Ubuntu 22.04 LTS (Jammy Jellyfish), ROS 2 Humble, dan Gazebo untuk kebutuhan pengembangan robotika.
 
-Panduan ini dibuat untuk anak-anak Learning Week supaya bisa:
+## Requirements
 
-* Install ROS2 di Ubuntu 24.04
-* Install Gazebo Harmonic
-* Menjalankan simulasi sederhana
-* Memahami konsep dasar ROS2
-* Menghubungkan ROS2 dengan Gazebo
-
-Karena hidup manusia ternyata belum cukup rumit tanpa dependency error.
+- Minimal RAM 8 GB (disarankan 16 GB)
+- Storage minimal 50 GB
+- Prosesor 64-bit (Intel/AMD)
+- Koneksi internet
 
 ---
 
-# 1. Persiapan
+# 1. Download Ubuntu 22.04
 
-## Minimum Requirement
+Unduh Ubuntu 22.04 LTS (Jammy Jellyfish) melalui link berikut:
 
-| Komponen       | Minimum            |
-| -------------- | ------------------ |
-| RAM            | 8 GB               |
-| Storage kosong | 25 GB              |
-| OS             | Ubuntu 24.04       |
-| Processor      | Intel i5 / Ryzen 5 |
+https://releases.ubuntu.com/jammy/
 
-Disarankan:
+Pilih:
 
-* menggunakan SSD
-* menggunakan Ubuntu native (dual boot)
-* bukan VirtualBox kentang yang tiap buka terminal kipas laptop langsung teriak.
+- **ubuntu-22.04.5-desktop-amd64.iso** (Recommended)
+
+Ubuntu 22.04 merupakan sistem operasi yang didukung secara resmi oleh ROS 2 Humble. :contentReference[oaicite:0]{index=0}
 
 ---
 
-# 2. Update Ubuntu
+# 2. Membuat Bootable USB
 
-Buka terminal lalu jalankan:
+Gunakan salah satu software berikut:
 
-```bash
-sudo apt update && sudo apt upgrade -y
-```
+- Rufus (Windows)
+- Balena Etcher
+- Ventoy
 
-Install package dasar:
+Langkah umum:
 
-```bash
-sudo apt install curl gnupg lsb-release software-properties-common -y
-```
+1. Colok flashdisk minimal 8 GB.
+2. Buka Rufus / Etcher.
+3. Pilih file ISO Ubuntu 22.04.
+4. Klik **Start**.
+5. Tunggu hingga proses selesai.
 
 ---
 
-# 3. Install ROS2 Jazzy
+# 3. Install Ubuntu 22.04
 
-Ubuntu 24.04 cocok menggunakan:
+1. Boot komputer menggunakan flashdisk.
+2. Pilih **Install Ubuntu**.
+3. Pilih keyboard layout.
+4. Pilih **Normal Installation**.
+5. Pilih:
+   - Install third-party software
+6. Atur partisi sesuai kebutuhan.
+7. Buat username dan password.
+8. Klik **Install Now**.
+9. Tunggu hingga instalasi selesai.
+10. Restart komputer.
 
-* ROS2 Jazzy Jalisco
+---
 
-## Tambahkan ROS2 Repository
+# 4. Update Sistem
+
+Setelah masuk Ubuntu:
 
 ```bash
 sudo apt update
-sudo apt install software-properties-common -y
+sudo apt upgrade -y
+sudo apt autoremove -y
+```
+
+---
+
+# 5. Install ROS 2 Humble
+
+ROS 2 Humble merupakan distribusi ROS 2 yang secara resmi mendukung Ubuntu 22.04 Jammy. :contentReference[oaicite:1]{index=1}
+
+## Tambahkan Repository ROS 2
+
+```bash
+sudo apt update
+sudo apt install software-properties-common curl -y
 sudo add-apt-repository universe
 ```
 
-Tambahkan ROS key:
-
 ```bash
-sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key \
--o /usr/share/keyrings/ros-archive-keyring.gpg
+export ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F "tag_name" | awk -F'"' '{print $4}')
 ```
 
-Tambahkan repository:
-
 ```bash
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+curl -L -o /tmp/ros2-apt-source.deb \
+"https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release && echo ${UBUNTU_CODENAME:-${VERSION_CODENAME}})_all.deb"
 ```
 
-Update package:
-
 ```bash
-sudo apt update
+sudo dpkg -i /tmp/ros2-apt-source.deb
 ```
 
 ---
 
-# 4. Install ROS2 Desktop
+## Install ROS 2 Desktop
 
 ```bash
-sudo apt install ros-jazzy-desktop -y
+sudo apt update
+sudo apt upgrade -y
 ```
 
-Install tools tambahan:
+```bash
+sudo apt install ros-humble-desktop -y
+```
 
 ```bash
 sudo apt install ros-dev-tools -y
@@ -98,194 +115,73 @@ sudo apt install ros-dev-tools -y
 
 ---
 
-# 5. Setup Environment ROS2
+## Setup Environment ROS 2
 
-Tambahkan source ROS2 ke bash:
+Tambahkan ke `.bashrc`:
 
 ```bash
-echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc
+echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
 ```
-
-Reload terminal:
 
 ```bash
 source ~/.bashrc
 ```
 
-Cek apakah ROS2 berhasil:
-
-```bash
-ros2
-```
-
-Kalau muncul command list panjang berarti berhasil.
-Kalau error, selamat datang di dunia robotics.
-
 ---
 
-# 6. Test ROS2
+## Verifikasi Instalasi ROS 2
 
-## Terminal 1
-
-Jalankan:
+Terminal 1:
 
 ```bash
 ros2 run demo_nodes_cpp talker
 ```
 
-## Terminal 2
-
-Jalankan:
+Terminal 2:
 
 ```bash
 ros2 run demo_nodes_py listener
 ```
 
-Kalau berhasil:
-
-* talker mengirim pesan
-* listener menerima pesan
-
-Ini konsep:
-
-* Publisher = pengirim data
-* Subscriber = penerima data
-* Topic = jalur komunikasi
+Jika listener menerima data dari talker, maka ROS 2 berhasil terpasang. :contentReference[oaicite:2]{index=2}
 
 ---
 
-# 7. Penjelasan Konsep ROS2
+# 6. Install Gazebo Harmonic
 
-## Node
+Gazebo Harmonic mendukung Ubuntu 22.04 secara resmi. :contentReference[oaicite:3]{index=3}
 
-Node adalah program kecil dalam sistem robot.
-
-Contoh:
-
-* camera node
-* imu node
-* movement node
-* sensor node
-
-Robot modern bukan satu program besar.
-Tapi kumpulan node yang saling komunikasi.
-
----
-
-## Topic
-
-Topic adalah jalur komunikasi antar node.
-
-Contoh:
-
-```text
-Camera Node --> /camera/image --> Vision Node
-```
-
-Node publish data ke topic.
-Node lain subscribe topic.
-
----
-
-## Publisher
-
-Publisher mengirim data.
-
-Contoh:
-
-* sensor publish data IMU
-* kamera publish gambar
-
----
-
-## Subscriber
-
-Subscriber menerima data.
-
-Contoh:
-
-* vision menerima gambar kamera
-* controller menerima data sensor
-
----
-
-## Service
-
-Service adalah komunikasi request-response.
-
-Contoh:
-
-```text
-Client meminta data
-Server mengirim jawaban
-```
-
-Mirip seperti:
-
-* “tolong reset sensor”
-* “berapa status baterai?”
-
----
-
-# 8. Install Gazebo Harmonic
-
-Gazebo Harmonic adalah simulator resmi untuk ROS2 Jazzy.
-
-Pada Ubuntu 24.04 biasanya package `gz-harmonic` tidak langsung ditemukan karena repository Gazebo belum ditambahkan.
-
-Jalankan dependency awal:
+## Tambahkan Repository Gazebo
 
 ```bash
 sudo apt update
 sudo apt install curl lsb-release gnupg -y
 ```
 
-Tambahkan key Gazebo:
-
 ```bash
-sudo curl -fsSL https://packages.osrfoundation.org/gazebo.gpg \
--o /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg
+sudo curl https://packages.osrfoundation.org/gazebo.gpg \
+--output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg
 ```
 
-Tambahkan repository Gazebo:
-
 ```bash
-echo "deb [signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] \
-http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | \
-sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] https://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null
 ```
-
-Update package:
 
 ```bash
 sudo apt update
 ```
 
-Install Gazebo Harmonic:
+---
+
+## Install Gazebo
 
 ```bash
 sudo apt install gz-harmonic -y
 ```
 
-Install bridge ROS2 dan Gazebo:
-
-```bash
-sudo apt install ros-jazzy-ros-gz -y
-```
-
-Kalau muncul error:
-
-```text
-E: Unable to locate package gz-harmonic
-```
-
-berarti repository Gazebo belum berhasil ditambahkan.
-
-Karena dependency robotics memang punya hobi membuat mahasiswa mempertanyakan pilihan hidupnya.
-
 ---
 
-# 9. Menjalankan Gazebo
+## Verifikasi Instalasi Gazebo
 
 Jalankan:
 
@@ -293,371 +189,72 @@ Jalankan:
 gz sim
 ```
 
-Kalau berhasil akan muncul:
-
-* world kosong
-* simulator Gazebo
-
-Kadang loading lama.
-Karena simulator robot memang suka menguji kesabaran manusia.
+Jika jendela simulator Gazebo muncul, maka instalasi berhasil. :contentReference[oaicite:4]{index=4}
 
 ---
 
-# 10. Menambahkan Object di Gazebo
-
-Di Gazebo:
-
-1. Klik ikon “+”
-2. Tambahkan:
-
-   * box
-   * sphere
-   * cylinder
-
-Object akan muncul di world.
-
----
-
-# 11. Menjalankan World Bawaan
-
-Contoh:
-
-```bash
-gz sim shapes.sdf
-```
-
-atau:
-
-```bash
-gz sim empty.sdf
-```
-
----
-
-# 12. Membuat Workspace ROS2
-
-Masuk home:
-
-```bash
-cd ~
-```
-
-Buat workspace:
+# 7. Membuat Workspace ROS 2
 
 ```bash
 mkdir -p ~/ros2_ws/src
 ```
 
-Masuk workspace:
-
 ```bash
 cd ~/ros2_ws
 ```
-
-Build workspace:
 
 ```bash
 colcon build
 ```
 
-Source workspace:
-
-```bash
-source install/setup.bash
-```
-
-Tambahkan otomatis ke bashrc:
+Tambahkan ke `.bashrc`:
 
 ```bash
 echo "source ~/ros2_ws/install/setup.bash" >> ~/.bashrc
 ```
 
----
-
-# 13. Install Colcon
-
-Kalau command colcon tidak ditemukan:
-
 ```bash
-sudo apt install python3-colcon-common-extensions -y
-```
-
-Coba lagi:
-
-```bash
-colcon build
+source ~/.bashrc
 ```
 
 ---
 
-# 14. Membuat Package ROS2 Python
+# Struktur Workspace
 
-Masuk src:
-
-```bash
-cd ~/ros2_ws/src
-```
-
-Buat package:
-
-```bash
-ros2 pkg create --build-type ament_python my_robot_pkg
-```
-
-Masuk package:
-
-```bash
-cd my_robot_pkg
+```text
+ros2_ws/
+├── src/
+├── build/
+├── install/
+└── log/
 ```
 
 ---
 
-# 15. Membuat Publisher Sederhana
+# Troubleshooting
 
-Masuk folder:
-
-```bash
-cd ~/ros2_ws/src/my_robot_pkg/my_robot_pkg
-```
-
-Buat file:
+## Cek Versi ROS
 
 ```bash
-nano publisher.py
+printenv | grep ROS
 ```
 
-Isi:
+## Cek ROS 2
 
-```python
-import rclpy
-from rclpy.node import Node
-from std_msgs.msg import String
+```bash
+ros2 --help
+```
 
-class SimplePublisher(Node):
+## Cek Gazebo
 
-    def __init__(self):
-        super().__init__('simple_publisher')
-        self.publisher_ = self.create_publisher(String, 'chatter', 10)
-        self.timer = self.create_timer(1.0, self.publish_message)
-
-    def publish_message(self):
-        msg = String()
-        msg.data = 'Hello ROS2'
-        self.publisher_.publish(msg)
-        self.get_logger().info(msg.data)
-
-
-def main(args=None):
-    rclpy.init(args=args)
-    node = SimplePublisher()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
-
-if __name__ == '__main__':
-    main()
+```bash
+gz sim --versions
 ```
 
 ---
 
-# 16. Build Package
-
-Kembali ke workspace:
-
-```bash
-cd ~/ros2_ws
-```
-
-Build:
-
-```bash
-colcon build
-```
-
-Source:
-
-```bash
-source install/setup.bash
-```
-
----
-
-# 17. Menjalankan Publisher
-
-```bash
-ros2 run my_robot_pkg publisher
-```
-
-Kalau belum bisa:
-
-* cek setup.py
-* cek permission file
-* cek typo
-
-Biasanya eror di setup.py, tambahin di bagian bawah nya tuh jadi gini
-
-```bash
-entry_points={
-        'console_scripts': [
-            'publisher = my_robot_pkg.publisher:main',
-
-```
-
-# 18. Integrasi ROS2 dengan Gazebo
-
-Jalankan Gazebo:
-
-```bash
-gz sim shapes.sdf
-```
-
-Lalu cek topic ROS2:
-
-```bash
-ros2 topic list
-```
-
-Cek data topic:
-
-```bash
-ros2 topic echo /clock
-```
-
-
-Kalau muncul data waktu berarti:
-
-* Gazebo berhasil komunikasi dengan ROS2
-
-Kalau ga muncul mungkin coba paste ini buat komunikasi mereka
-
-```bash
-ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock
-```
----
-
-# 19. Visualisasi Graph ROS2
-
-Install rqt:
-
-```bash
-sudo apt install ros-jazzy-rqt-graph -y
-```
-
-Jalankan:
-
-```bash
-rqt_graph
-```
-
-Akan muncul diagram:
-
-* node
-* topic
-* komunikasi antar node
-
-Ini membantu memahami arsitektur robot.
-
----
-
-# 20. Struktur Belajar yang Harus Dipahami
-
-Urutan belajar ROS2 yang benar:
-
-1. Linux
-2. Terminal
-3. ROS2 node
-4. Topic
-5. Publisher/subscriber
-6. Service
-7. Workspace
-8. Package
-9. Simulation
-10. Hardware
-
-Kalau langsung loncat ke AI vision tanpa ngerti topic ROS2 biasanya berakhir dengan:
-
-> “kak ini error kenapa ya”
-
-padahal terminal sudah jelas menulis error merah sepanjang dosa umat manusia.
-
----
-
-# 21. Troubleshooting Umum
-
-## colcon not found
-
-Install:
-
-```bash
-sudo apt install python3-colcon-common-extensions -y
-```
-
----
-
-## ros2 command not found
-
-Jalankan:
-
-```bash
-source /opt/ros/jazzy/setup.bash
-```
-
----
-
-## Gazebo tidak muncul
-
-Coba:
-
-```bash
-gz sim -v 4
-```
-
----
-
-## Build gagal
-
-Hapus build lama:
-
-```bash
-rm -rf build install log
-```
-
-Lalu build ulang:
-
-```bash
-colcon build
-```
-
----
-
-# 22. Hasil Akhir yang Diharapkan
-
-Setelah pertemuan ini peserta diharapkan:
-
-* Mengerti konsep ROS2
-* Mengerti node dan topic
-* Bisa install ROS2
-* Bisa menjalankan Gazebo
-* Bisa membuat workspace
-* Bisa menjalankan publisher sederhana
-* Mengerti komunikasi robot modern
-
----
-
-# 23. Referensi
-
-## Dokumentasi ROS2
-
-[https://docs.ros.org/](https://docs.ros.org/)
-
-## Dokumentasi Gazebo
-
-[https://gazebosim.org/docs](https://gazebosim.org/docs)
-
-## Dokumentasi ROS-GZ
-
-[https://github.com/gazebosim/ros_gz](https://github.com/gazebosim/ros_gz)
-
----
-
-# Penutup
+# Referensi
+
+- Ubuntu 22.04 LTS: https://releases.ubuntu.com/jammy/
+- ROS 2 Humble Documentation: https://docs.ros.org/en/humble/
+- Gazebo Harmonic Documentation: https://gazebosim.org/docs/harmonic/
