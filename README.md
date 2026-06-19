@@ -1,67 +1,285 @@
-# Ubuntu 22.04 + ROS 2 Humble + Gazebo Installation Guide
+# Ubuntu 22.04, ROS 2 Humble, dan Gazebo Installation Guide
 
-Panduan instalasi Ubuntu 22.04 LTS (Jammy Jellyfish), ROS 2 Humble, dan Gazebo untuk kebutuhan pengembangan robotika.
-
-## Requirements
-
-- Minimal RAM 8 GB (disarankan 16 GB)
-- Storage minimal 50 GB
-- Prosesor 64-bit (Intel/AMD)
-- Koneksi internet
+Panduan instalasi Ubuntu 22.04 LTS menggunakan **Virtual Machine (VM)** maupun **Dual Boot**, dilengkapi dengan instalasi **ROS 2 Humble** dan **Gazebo** untuk kebutuhan praktikum robotika.
 
 ---
 
-# 1. Download Ubuntu 22.04
+## Daftar Isi
 
-Unduh Ubuntu 22.04 LTS (Jammy Jellyfish) melalui link berikut:
+- [Persyaratan Sistem](#persyaratan-sistem)
+- [Download Ubuntu 22.04](#download-ubuntu-2204)
+- [Metode Instalasi](#metode-instalasi)
+  - [Virtual Machine](#opsi-a--virtual-machine)
+  - [Dual Boot](#opsi-b--dual-boot)
+- [Update Sistem](#update-sistem)
+- [Instalasi ROS 2 Humble](#instalasi-ros-2-humble)
+- [Instalasi Gazebo](#instalasi-gazebo)
+- [Membuat Workspace ROS 2](#membuat-workspace-ros-2)
+- [Verifikasi Instalasi](#verifikasi-instalasi)
+- [Troubleshooting](#troubleshooting)
+- [Referensi](#referensi)
+
+---
+
+# Persyaratan Sistem
+
+| Komponen | Minimum | Disarankan |
+|-----------|----------|------------|
+| RAM | 4 GB | 8–16 GB |
+| CPU | 2 Core | 4 Core atau lebih |
+| Storage | 30 GB | 50 GB atau lebih |
+| GPU | Tidak wajib | Mendukung OpenGL |
+
+> **Catatan:** Gazebo membutuhkan resource yang cukup besar. Jika memungkinkan, gunakan Dual Boot untuk performa yang lebih baik.
+
+---
+
+# Download Ubuntu 22.04
+
+Download Ubuntu 22.04 LTS (Jammy Jellyfish) melalui link berikut:
 
 https://releases.ubuntu.com/jammy/
 
-Pilih:
+File yang disarankan:
 
-- **ubuntu-22.04.5-desktop-amd64.iso** (Recommended)
-
-Ubuntu 22.04 merupakan sistem operasi yang didukung secara resmi oleh ROS 2 Humble. :contentReference[oaicite:0]{index=0}
+```text
+ubuntu-22.04.5-desktop-amd64.iso
+```
 
 ---
 
-# 2. Membuat Bootable USB
+# Metode Instalasi
 
-Gunakan salah satu software berikut:
+Pilih salah satu metode berikut:
 
-- Rufus (Windows)
+- Virtual Machine (VM)
+- Dual Boot
+
+---
+
+# Opsi A — Virtual Machine
+
+Metode ini menjalankan Ubuntu di dalam Windows tanpa mengubah partisi disk.
+
+## Install VirtualBox
+
+Download dan install VirtualBox dari:
+
+https://www.virtualbox.org/
+
+---
+
+## Membuat Virtual Machine
+
+1. Buka VirtualBox.
+2. Klik **New**.
+3. Isi konfigurasi:
+
+```text
+Name      : Ubuntu 22.04
+Type      : Linux
+Version   : Ubuntu (64-bit)
+```
+
+4. Alokasikan resource:
+
+```text
+RAM       : Minimal 4096 MB
+Disarankan: 8192 MB
+
+CPU       : Minimal 2 Core
+Disarankan: 4 Core
+```
+
+5. Buat Virtual Hard Disk:
+
+```text
+Format      : VDI
+Storage     : Dynamically Allocated
+Ukuran      : Minimal 30 GB
+Disarankan  : 50 GB
+```
+
+6. Buka menu **Settings → Storage**.
+7. Masukkan file ISO Ubuntu yang telah diunduh.
+8. Jalankan VM.
+
+---
+
+## Pengaturan Display VirtualBox
+
+Sebelum menginstal Ubuntu:
+
+Masuk ke:
+
+```text
+Settings → Display
+```
+
+Atur menjadi:
+
+```text
+Video Memory          : 128 MB
+Graphics Controller   : VMSVGA
+Enable 3D Acceleration: ✓
+```
+
+Pengaturan ini diperlukan agar Gazebo dapat berjalan dengan baik.
+
+---
+
+## Install Ubuntu di VM
+
+1. Jalankan VM.
+2. Pilih **Install Ubuntu**.
+3. Pilih keyboard layout.
+4. Pilih:
+
+```text
+Normal Installation
+```
+
+5. Centang:
+
+```text
+Install third-party software
+```
+
+6. Klik **Erase disk and install Ubuntu**.
+
+> Opsi ini hanya menghapus disk virtual, bukan disk komputer utama.
+
+7. Tunggu hingga instalasi selesai.
+8. Restart VM.
+
+---
+
+# Opsi B — Dual Boot
+
+Metode ini menginstall Ubuntu berdampingan dengan Windows.
+
+---
+
+## Persiapan
+
+### Backup Data Penting
+
+Pastikan seluruh data penting telah dibackup.
+
+---
+
+### Disable Fast Startup
+
+Masuk ke:
+
+```text
+Control Panel
+→ Power Options
+→ Choose what the power buttons do
+→ Turn off Fast Startup
+```
+
+---
+
+### Membuat Ruang Kosong
+
+1. Tekan:
+
+```text
+Windows + X
+```
+
+2. Pilih:
+
+```text
+Disk Management
+```
+
+3. Klik kanan drive yang ingin dikurangi.
+4. Pilih:
+
+```text
+Shrink Volume
+```
+
+5. Kurangi minimal:
+
+```text
+50 GB (51200 MB)
+```
+
+6. Akan muncul:
+
+```text
+Unallocated Space
+```
+
+---
+
+## Membuat Bootable USB
+
+Gunakan salah satu software:
+
+- Rufus
 - Balena Etcher
 - Ventoy
 
-Langkah umum:
+Langkah:
 
-1. Colok flashdisk minimal 8 GB.
-2. Buka Rufus / Etcher.
-3. Pilih file ISO Ubuntu 22.04.
-4. Klik **Start**.
-5. Tunggu hingga proses selesai.
-
----
-
-# 3. Install Ubuntu 22.04
-
-1. Boot komputer menggunakan flashdisk.
-2. Pilih **Install Ubuntu**.
-3. Pilih keyboard layout.
-4. Pilih **Normal Installation**.
-5. Pilih:
-   - Install third-party software
-6. Atur partisi sesuai kebutuhan.
-7. Buat username dan password.
-8. Klik **Install Now**.
-9. Tunggu hingga instalasi selesai.
-10. Restart komputer.
+1. Masukkan flashdisk minimal 8 GB.
+2. Pilih file ISO Ubuntu.
+3. Klik **Start**.
+4. Tunggu hingga selesai.
 
 ---
 
-# 4. Update Sistem
+## Install Ubuntu Dual Boot
 
-Setelah masuk Ubuntu:
+1. Boot komputer menggunakan flashdisk Ubuntu.
+2. Pilih:
+
+```text
+Install Ubuntu
+```
+
+3. Pada Installation Type pilih:
+
+```text
+Install Ubuntu alongside Windows Boot Manager
+```
+
+atau
+
+```text
+Something Else
+```
+
+untuk pengaturan partisi manual.
+
+---
+
+### Skema Partisi yang Disarankan
+
+| Mount Point | Ukuran |
+|------------|---------|
+| / | 40 GB |
+| swap | 4–8 GB |
+| /home | Sisa ruang |
+
+4. Lanjutkan proses instalasi.
+5. Restart komputer.
+6. Setelah restart akan muncul menu GRUB untuk memilih:
+
+```text
+Ubuntu
+Windows
+```
+
+---
+
+# Update Sistem
+
+Setelah berhasil masuk Ubuntu:
 
 ```bash
 sudo apt update
@@ -71,11 +289,9 @@ sudo apt autoremove -y
 
 ---
 
-# 5. Install ROS 2 Humble
+# Instalasi ROS 2 Humble
 
-ROS 2 Humble merupakan distribusi ROS 2 yang secara resmi mendukung Ubuntu 22.04 Jammy. :contentReference[oaicite:1]{index=1}
-
-## Tambahkan Repository ROS 2
+## Menambahkan Repository ROS 2
 
 ```bash
 sudo apt update
@@ -129,27 +345,7 @@ source ~/.bashrc
 
 ---
 
-## Verifikasi Instalasi ROS 2
-
-Terminal 1:
-
-```bash
-ros2 run demo_nodes_cpp talker
-```
-
-Terminal 2:
-
-```bash
-ros2 run demo_nodes_py listener
-```
-
-Jika listener menerima data dari talker, maka ROS 2 berhasil terpasang. :contentReference[oaicite:2]{index=2}
-
----
-
-# 6. Install Gazebo Harmonic
-
-Gazebo Harmonic mendukung Ubuntu 22.04 secara resmi. :contentReference[oaicite:3]{index=3}
+# Instalasi Gazebo Harmonic
 
 ## Tambahkan Repository Gazebo
 
@@ -181,19 +377,7 @@ sudo apt install gz-harmonic -y
 
 ---
 
-## Verifikasi Instalasi Gazebo
-
-Jalankan:
-
-```bash
-gz sim
-```
-
-Jika jendela simulator Gazebo muncul, maka instalasi berhasil. :contentReference[oaicite:4]{index=4}
-
----
-
-# 7. Membuat Workspace ROS 2
+# Membuat Workspace ROS 2
 
 ```bash
 mkdir -p ~/ros2_ws/src
@@ -219,42 +403,119 @@ source ~/.bashrc
 
 ---
 
-# Struktur Workspace
+# Verifikasi Instalasi
+
+## Cek Versi Ubuntu
+
+```bash
+lsb_release -a
+```
+
+Output yang diharapkan:
 
 ```text
-ros2_ws/
-├── src/
-├── build/
-├── install/
-└── log/
+Ubuntu 22.04 LTS
 ```
+
+---
+
+## Cek ROS 2
+
+Terminal 1:
+
+```bash
+ros2 run demo_nodes_cpp talker
+```
+
+Terminal 2:
+
+```bash
+ros2 run demo_nodes_py listener
+```
+
+Jika listener menerima data dari talker, ROS 2 berhasil terpasang.
+
+---
+
+## Cek Gazebo
+
+```bash
+gz sim
+```
+
+Jika jendela simulator Gazebo muncul, maka Gazebo berhasil terinstall.
+
+---
+
+## Cek Workspace ROS 2
+
+```bash
+cd ~/ros2_ws
+```
+
+```bash
+colcon build
+```
+
+Jika tidak muncul error, workspace siap digunakan.
 
 ---
 
 # Troubleshooting
 
-## Cek Versi ROS
+## ROS 2 Tidak Terdeteksi
+
+Periksa:
 
 ```bash
-printenv | grep ROS
+source /opt/ros/humble/setup.bash
 ```
 
-## Cek ROS 2
+atau:
 
 ```bash
-ros2 --help
+cat ~/.bashrc
 ```
 
-## Cek Gazebo
+Pastikan terdapat:
 
 ```bash
-gz sim --versions
+source /opt/ros/humble/setup.bash
+```
+
+---
+
+## Gazebo Tidak Muncul
+
+Pastikan:
+
+### Pada VirtualBox
+
+```text
+Video Memory          : 128 MB
+Enable 3D Acceleration: ✓
+Graphics Controller   : VMSVGA
+```
+
+### Update Driver Grafis
+
+```bash
+sudo ubuntu-drivers autoinstall
 ```
 
 ---
 
 # Referensi
 
-- Ubuntu 22.04 LTS: https://releases.ubuntu.com/jammy/
-- ROS 2 Humble Documentation: https://docs.ros.org/en/humble/
-- Gazebo Harmonic Documentation: https://gazebosim.org/docs/harmonic/
+- Ubuntu 22.04 LTS  
+  https://releases.ubuntu.com/jammy/
+
+- ROS 2 Humble Documentation  
+  https://docs.ros.org/en/humble/
+
+- Gazebo Documentation  
+  https://gazebosim.org/docs/
+
+---
+
+**Selamat! Ubuntu 22.04, ROS 2 Humble, dan Gazebo telah berhasil diinstal dan siap digunakan untuk praktikum robotika.**
