@@ -1,42 +1,43 @@
 # Ubuntu 22.04, ROS 2 Humble, dan Gazebo Installation Guide
 
-Panduan instalasi Ubuntu 22.04 LTS menggunakan **Virtual Machine (VM)** maupun **Dual Boot**, dilengkapi dengan instalasi **ROS 2 Humble** dan **Gazebo** untuk kebutuhan praktikum robotika.
+Panduan instalasi Ubuntu 22.04 LTS menggunakan **VMware Workstation** maupun **Dual Boot**, dilengkapi dengan instalasi **ROS 2 Humble** dan **Gazebo** untuk kebutuhan praktikum robotika.
 
 ---
 
-## Daftar Isi
+# Daftar Isi
 
-- [Persyaratan Sistem](#persyaratan-sistem)
-- [Download Ubuntu 22.04](#download-ubuntu-2204)
-- [Metode Instalasi](#metode-instalasi)
-  - [Virtual Machine](#opsi-a--virtual-machine)
-  - [Dual Boot](#opsi-b--dual-boot)
-- [Update Sistem](#update-sistem)
-- [Instalasi ROS 2 Humble](#instalasi-ros-2-humble)
-- [Instalasi Gazebo](#instalasi-gazebo)
-- [Membuat Workspace ROS 2](#membuat-workspace-ros-2)
-- [Verifikasi Instalasi](#verifikasi-instalasi)
-- [Troubleshooting](#troubleshooting)
-- [Referensi](#referensi)
+* Persyaratan Sistem
+* Download Ubuntu 22.04
+* Metode Instalasi
+
+  * Opsi A — VMware Workstation
+  * Opsi B — Dual Boot
+* Update Sistem
+* Instalasi ROS 2 Humble
+* Instalasi Gazebo
+* Membuat Workspace ROS 2
+* Verifikasi Instalasi
+* Troubleshooting
+* Referensi
 
 ---
 
 # Persyaratan Sistem
 
-| Komponen | Minimum | Disarankan |
-|-----------|----------|------------|
-| RAM | 4 GB | 8–16 GB |
-| CPU | 2 Core | 4 Core atau lebih |
-| Storage | 30 GB | 50 GB atau lebih |
-| GPU | Tidak wajib | Mendukung OpenGL |
+| Komponen | Minimum     | Disarankan        |
+| -------- | ----------- | ----------------- |
+| RAM      | 4 GB        | 8–16 GB           |
+| CPU      | 2 Core      | 4 Core atau lebih |
+| Storage  | 30 GB       | 50 GB atau lebih  |
+| GPU      | Tidak wajib | Mendukung OpenGL  |
 
-> **Catatan:** Gazebo membutuhkan resource yang cukup besar. Jika memungkinkan, gunakan Dual Boot untuk performa yang lebih baik.
+> Untuk pengguna VMware, minimal gunakan RAM 8 GB dan 4 CPU Core agar Gazebo serta RViz dapat berjalan dengan lancar.
 
 ---
 
 # Download Ubuntu 22.04
 
-Download Ubuntu 22.04 LTS (Jammy Jellyfish) melalui link berikut:
+Download Ubuntu 22.04 LTS (Jammy Jellyfish):
 
 https://releases.ubuntu.com/jammy/
 
@@ -52,86 +53,146 @@ ubuntu-22.04.5-desktop-amd64.iso
 
 Pilih salah satu metode berikut:
 
-- Virtual Machine (VM)
-- Dual Boot
+* VMware Workstation
+* Dual Boot
 
 ---
 
-# Opsi A — Virtual Machine
+# Opsi A — VMware Workstation
 
-Metode ini menjalankan Ubuntu di dalam Windows tanpa mengubah partisi disk.
+Metode ini menjalankan Ubuntu di dalam Windows tanpa mengubah partisi disk utama.
 
-## Install VirtualBox
+## Install VMware Workstation
 
-Download dan install VirtualBox dari:
-
-https://www.virtualbox.org/
+Download dan install VMware Workstation.
 
 ---
 
 ## Membuat Virtual Machine
 
-1. Buka VirtualBox.
-2. Klik **New**.
-3. Isi konfigurasi:
+1. Buka VMware Workstation.
+2. Klik **Create a New Virtual Machine**.
+3. Pilih:
 
 ```text
-Name      : Ubuntu 22.04
-Type      : Linux
-Version   : Ubuntu (64-bit)
+Typical (recommended)
 ```
 
-4. Alokasikan resource:
+4. Pilih:
 
 ```text
-RAM       : Minimal 4096 MB
-Disarankan: 8192 MB
-
-CPU       : Minimal 2 Core
-Disarankan: 4 Core
+Installer disc image file (iso)
 ```
 
-5. Buat Virtual Hard Disk:
+5. Masukkan file:
 
 ```text
-Format      : VDI
-Storage     : Dynamically Allocated
-Ukuran      : Minimal 30 GB
-Disarankan  : 50 GB
+ubuntu-22.04.5-desktop-amd64.iso
 ```
 
-6. Buka menu **Settings → Storage**.
-7. Masukkan file ISO Ubuntu yang telah diunduh.
-8. Jalankan VM.
+6. Klik Next.
 
 ---
 
-## Pengaturan Display VirtualBox
+## Konfigurasi Akun Ubuntu
 
-Sebelum menginstal Ubuntu:
+Isi:
+
+```text
+Full Name
+Username
+Password
+```
+
+Klik Next.
+
+---
+
+## Konfigurasi Virtual Machine
+
+Nama VM:
+
+```text
+Ubuntu 22.04
+```
+
+Pilih lokasi penyimpanan sesuai kebutuhan.
+
+---
+
+## Konfigurasi Storage
+
+Atur:
+
+```text
+Disk Size : 50 GB
+```
+
+Pilih:
+
+```text
+Store virtual disk as a single file
+```
+
+---
+
+## Konfigurasi Hardware
+
+Klik:
+
+```text
+Customize Hardware
+```
+
+Atur:
+
+```text
+Memory : 8192 MB (8 GB)
+Processors : 4 Core
+```
+
+Jika spesifikasi laptop terbatas:
+
+```text
+Memory : 4096 MB
+Processors : 2 Core
+```
+
+---
+
+## Pengaturan Display VMware
 
 Masuk ke:
 
 ```text
-Settings → Display
+VM Settings → Display
 ```
 
-Atur menjadi:
+Centang:
 
 ```text
-Video Memory          : 128 MB
-Graphics Controller   : VMSVGA
-Enable 3D Acceleration: ✓
+Accelerate 3D Graphics
+```
+
+Disarankan:
+
+```text
+Graphics Memory : 2 GB atau Auto
 ```
 
 Pengaturan ini diperlukan agar Gazebo dapat berjalan dengan baik.
 
 ---
 
-## Install Ubuntu di VM
+## Menjalankan Instalasi Ubuntu
 
-1. Jalankan VM.
-2. Pilih **Install Ubuntu**.
+1. Klik **Power On This Virtual Machine**.
+2. Pilih:
+
+```text
+Install Ubuntu
+```
+
 3. Pilih keyboard layout.
 4. Pilih:
 
@@ -145,12 +206,36 @@ Normal Installation
 Install third-party software
 ```
 
-6. Klik **Erase disk and install Ubuntu**.
+6. Pilih:
 
-> Opsi ini hanya menghapus disk virtual, bukan disk komputer utama.
+```text
+Erase disk and install Ubuntu
+```
+
+> Aman digunakan karena hanya menghapus virtual disk VMware.
 
 7. Tunggu hingga instalasi selesai.
 8. Restart VM.
+
+---
+
+## Install VMware Tools
+
+Setelah Ubuntu berhasil masuk desktop:
+
+```bash
+sudo apt update
+sudo apt install open-vm-tools open-vm-tools-desktop -y
+sudo reboot
+```
+
+Fitur yang aktif:
+
+* Full Screen
+* Auto Resize Display
+* Copy Paste
+* Drag and Drop
+* Shared Folder
 
 ---
 
@@ -162,7 +247,7 @@ Metode ini menginstall Ubuntu berdampingan dengan Windows.
 
 ## Persiapan
 
-### Backup Data Penting
+### Backup Data
 
 Pastikan seluruh data penting telah dibackup.
 
@@ -218,24 +303,24 @@ Unallocated Space
 
 ## Membuat Bootable USB
 
-Gunakan salah satu software:
+Gunakan:
 
-- Rufus
-- Balena Etcher
-- Ventoy
+* Rufus
+* Balena Etcher
+* Ventoy
 
 Langkah:
 
 1. Masukkan flashdisk minimal 8 GB.
 2. Pilih file ISO Ubuntu.
-3. Klik **Start**.
+3. Klik Start.
 4. Tunggu hingga selesai.
 
 ---
 
-## Install Ubuntu Dual Boot
+## Instalasi Ubuntu Dual Boot
 
-1. Boot komputer menggunakan flashdisk Ubuntu.
+1. Boot menggunakan flashdisk Ubuntu.
 2. Pilih:
 
 ```text
@@ -254,26 +339,21 @@ atau
 Something Else
 ```
 
-untuk pengaturan partisi manual.
+untuk partisi manual.
 
 ---
 
 ### Skema Partisi yang Disarankan
 
-| Mount Point | Ukuran |
-|------------|---------|
-| / | 40 GB |
-| swap | 4–8 GB |
-| /home | Sisa ruang |
+| Mount Point | Ukuran     |
+| ----------- | ---------- |
+| /           | 40 GB      |
+| swap        | 4–8 GB     |
+| /home       | Sisa ruang |
 
-4. Lanjutkan proses instalasi.
+4. Lanjutkan instalasi.
 5. Restart komputer.
-6. Setelah restart akan muncul menu GRUB untuk memilih:
-
-```text
-Ubuntu
-Windows
-```
+6. Pilih sistem operasi melalui menu GRUB.
 
 ---
 
@@ -319,13 +399,7 @@ sudo dpkg -i /tmp/ros2-apt-source.deb
 ```bash
 sudo apt update
 sudo apt upgrade -y
-```
-
-```bash
 sudo apt install ros-humble-desktop -y
-```
-
-```bash
 sudo apt install ros-dev-tools -y
 ```
 
@@ -333,13 +407,8 @@ sudo apt install ros-dev-tools -y
 
 ## Setup Environment ROS 2
 
-Tambahkan ke `.bashrc`:
-
 ```bash
 echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
-```
-
-```bash
 source ~/.bashrc
 ```
 
@@ -347,7 +416,7 @@ source ~/.bashrc
 
 # Instalasi Gazebo Harmonic
 
-## Tambahkan Repository Gazebo
+## Menambahkan Repository Gazebo
 
 ```bash
 sudo apt update
@@ -391,13 +460,10 @@ cd ~/ros2_ws
 colcon build
 ```
 
-Tambahkan ke `.bashrc`:
+Tambahkan ke bashrc:
 
 ```bash
 echo "source ~/ros2_ws/install/setup.bash" >> ~/.bashrc
-```
-
-```bash
 source ~/.bashrc
 ```
 
@@ -405,13 +471,13 @@ source ~/.bashrc
 
 # Verifikasi Instalasi
 
-## Cek Versi Ubuntu
+## Cek Ubuntu
 
 ```bash
 lsb_release -a
 ```
 
-Output yang diharapkan:
+Output:
 
 ```text
 Ubuntu 22.04 LTS
@@ -443,21 +509,18 @@ Jika listener menerima data dari talker, ROS 2 berhasil terpasang.
 gz sim
 ```
 
-Jika jendela simulator Gazebo muncul, maka Gazebo berhasil terinstall.
+Jika jendela simulator muncul, Gazebo berhasil terpasang.
 
 ---
 
-## Cek Workspace ROS 2
+## Cek Workspace
 
 ```bash
 cd ~/ros2_ws
-```
-
-```bash
 colcon build
 ```
 
-Jika tidak muncul error, workspace siap digunakan.
+Jika tidak ada error, workspace siap digunakan.
 
 ---
 
@@ -465,19 +528,13 @@ Jika tidak muncul error, workspace siap digunakan.
 
 ## ROS 2 Tidak Terdeteksi
 
-Periksa:
+Jalankan:
 
 ```bash
 source /opt/ros/humble/setup.bash
 ```
 
-atau:
-
-```bash
-cat ~/.bashrc
-```
-
-Pastikan terdapat:
+Pastikan pada file `.bashrc` terdapat:
 
 ```bash
 source /opt/ros/humble/setup.bash
@@ -485,36 +542,38 @@ source /opt/ros/humble/setup.bash
 
 ---
 
-## Gazebo Tidak Muncul
+## Gazebo Tidak Muncul pada VMware
+
+Periksa:
+
+```text
+VM Settings → Display
+```
 
 Pastikan:
 
-### Pada VirtualBox
-
 ```text
-Video Memory          : 128 MB
-Enable 3D Acceleration: ✓
-Graphics Controller   : VMSVGA
+Accelerate 3D Graphics ✓
 ```
 
-### Update Driver Grafis
+dan RAM VM minimal:
 
-```bash
-sudo ubuntu-drivers autoinstall
+```text
+8 GB
 ```
 
 ---
 
 # Referensi
 
-- Ubuntu 22.04 LTS  
-  https://releases.ubuntu.com/jammy/
+Ubuntu 22.04 LTS
+https://releases.ubuntu.com/jammy/
 
-- ROS 2 Humble Documentation  
-  https://docs.ros.org/en/humble/
+ROS 2 Humble Documentation
+https://docs.ros.org/en/humble/
 
-- Gazebo Documentation  
-  https://gazebosim.org/docs/
+Gazebo Documentation
+https://gazebosim.org/docs/
 
 ---
 
